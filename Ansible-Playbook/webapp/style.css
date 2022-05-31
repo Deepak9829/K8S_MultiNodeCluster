@@ -1,0 +1,82 @@
+
+
+body {
+
+ background-image: url("https://raw.githubusercontent.com/Deepak9829/IMAGES/master/cool-background%20(1).png");
+ background-color: #cccccc;
+
+}
+
+#div1{
+    background-color: black;
+    border: 1px;
+    border-radius: 4px;
+    margin-top: 90px;
+    margin-left: 2%;
+    width: 25%;
+    height: 475px;
+    
+    
+    
+}
+
+
+
+input[type=text], select {
+    width: 730px;
+    padding: 15px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: content-box;
+    
+  }
+  
+  
+  input[type=submit]{
+    background-color: azure;
+    padding: 15px 20px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  input[type=submit]:hover{
+      background-color: aqua;
+  }
+
+  #div3{
+     
+      position: absolute;
+      top: 1%;
+      left: 30%;
+    }
+
+
+    span{
+        width: 61%;
+        background-color: black;
+        color: wheat;
+        position: absolute;
+        top: 25%;
+        left: 30%;
+        height: 60%;
+        border-radius: 4px;
+        text-decoration-color: white;
+        scrollbar-color: gold;
+        overflow: auto;
+        text-align: justify;
+        font-size: large;
+        padding: 15px 15px;
+    }
+
+    #img1{
+        width: 320px;
+        height: 250px;
+    }
+
+
+    #img2{
+        width: 320px;
+        height: 50px;
+    }
