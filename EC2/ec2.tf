@@ -119,7 +119,7 @@ resource "local_file" "ipaddr" {
 
 resource "local_file" "ipaddr" {
     
-filename = "/home/deepaksaini/Inventory/inventory.txt"
+filename = "/home/deepaksaini/ansible_hosts"
 content = <<-EOT
     [Master]
     ${aws_instance.Master.public_ip}
