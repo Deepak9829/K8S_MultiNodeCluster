@@ -52,7 +52,7 @@ Name = "My_SG"
 
 resource "aws_instance" "Slave" {
 depends_on = [aws_security_group.mysg]
-count = 10
+count = 2
 subnet_id = aws_subnet.mysubnet.id
 ami           = "ami-079b5e5b3971bd10d"
 instance_type = "t2.micro"

@@ -1,7 +1,7 @@
 - hosts: Master
   roles:
-  - role: "deepak9829.k8s_master"
+  - role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Master"
 
 - hosts: Slave
   roles:
-  - role: "deepak9829.k8s_slave"
+  - role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Slave"
