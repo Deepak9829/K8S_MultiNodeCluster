@@ -119,7 +119,7 @@ resource "local_file" "ipaddr" {
 
 resource "local_file" "ipaddr" {
     
-filename = "/home/deepaksaini/ansible_hosts"
+filename = "/home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/k8s.ini"
 content = <<-EOT
     [Master]
     ${aws_instance.Master.public_ip}
