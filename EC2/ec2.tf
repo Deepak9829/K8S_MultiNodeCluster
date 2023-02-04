@@ -134,7 +134,7 @@ content = <<-EOT
 resource "null_resource" "nulllocal3"{
   depends_on = [local_file.ipaddr]
 provisioner "local-exec" {
-        command     = "ansible-playbook /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/cluster.yml"
+        command     = "ansible-playbook /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/cluster.yml -i /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/k8s.ini"
     }
 
 }
