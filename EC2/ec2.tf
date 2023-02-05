@@ -52,10 +52,10 @@ Name = "My_SG"
 
 resource "aws_instance" "Slave" {
 depends_on = [aws_security_group.mysg]
-count = 2
+count = var.slave_machine_count
 subnet_id = aws_subnet.mysubnet.id
-ami           = "ami-079b5e5b3971bd10d"
-instance_type = "t2.micro"
+ami           = var.ami_image
+instance_type = var.slave_instance_type
 key_name = "testvm"
 associate_public_ip_address = true
 vpc_security_group_ids = [ aws_security_group.mysg.id ]
@@ -80,9 +80,9 @@ Name = "Slave-${count.index + 1}"
 resource "aws_instance" "Master" {
 depends_on = [aws_security_group.mysg]
 subnet_id = aws_subnet.mysubnet.id
-ami           = "ami-079b5e5b3971bd10d"
+ami           = var.ami_image
 associate_public_ip_address = true
-instance_type = "t2.medium"
+instance_type = var.master_instance_type
 key_name = "testvm"
 vpc_security_group_ids = [ aws_security_group.mysg.id ]
 
@@ -101,25 +101,11 @@ tags = {
 Name = "Master"
 }
 }
-/*
-resource "local_file" "ipaddr" {
-    
-    content  = "[Master]\n${aws_instance.Master.public_ip}\n[Slave]\n${aws_instance.Slave[count.index]}\n"
-    filename = "/home/deepaksaini/Inventory/inventory.txt"
-}*/
-
-/*
-resource "local_file" "ipaddr" {
-    count = length(tolist([aws_instance.Slave]))
-    content  = "[Master]\n ${element(aws_instance.Slave.*.public_ip, count.index,)}\n"
-    filename = "/home/deepaksaini/Inventory/inventory.txt"
-}
-*/
 
 
 resource "local_file" "ipaddr" {
     
-filename = "/home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/k8s.ini"
+filename = var.inventory_file_path
 content = <<-EOT
     [Master]
     ${aws_instance.Master.public_ip}
@@ -138,33 +124,9 @@ provisioner "local-exec" {
     }
 
 }
-/*
-resource "null_resource" "LabeltheNodes" {
-depends_on =[ null_resource.nulllocal3]
 
-connection {
-type = "ssh"
-user = "ec2-user"
-private_key = file("/home/deepaksaini/Downloads/testvm.pem")
-port = 22
-host = aws_instance.Master.public_ip
-}
-provisioner "remote-exec" {
-inline = [<<EOT
-        %{ for dns in aws_instance.Slave.*.private_dns ~}
-         echo ${dns} >> /home/ec2-user/dns.txt
-         %{ endfor ~}
-        %{ for name in aws_instance.Slave.*.tags.Name ~}
-        echo ${name} >> /home/ec2-user/name.txt
-       %{ endfor ~}
 
-        sudo kubectl label node ${i}  node-role.kubernetes.io/${j}=${j}
-       
-       EOT
-]
-}
-}
-*/
+
 
 resource "null_resource" "LabeltheNodes" {
 depends_on =[ null_resource.nulllocal3]
@@ -173,7 +135,7 @@ depends_on =[ null_resource.nulllocal3]
 connection {
 type = "ssh"
 user = "ec2-user"
-private_key = file("/home/deepaksaini/Downloads/testvm.pem")
+private_key = file(var.aws_private_key_path)
 port = 22
 host = aws_instance.Master.public_ip
 }
