@@ -1,0 +1,78 @@
+---
+# tasks file for k8s-Slave
+- name: Install Docker Software
+  package:
+          name: "docker"
+          state: present
+
+- name: Start Docker Service
+  service:
+         name: "docker"
+         state: started
+
+- name: Configuring YUM Repo For K8S Services
+  yum_repository:
+      name: kubernetes
+      description: kubernetes repo
+      baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+      enabled: 1
+      gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  register: a
+  changed_when: false
+
+
+- name: Install Kubeadm software..
+  shell:
+       cmd: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+  ignore_errors: yes
+
+- name: Start kubelet Service
+  service:
+        name: "kubelet"
+        state: started
+
+- name: change the driver name for control process by docker
+  copy:
+       src: daemon.json
+       dest: /etc/docker/
+
+- name: Docker service restarted
+  service:
+         name: "docker"
+         state: restarted
+
+- name: Setting Up IP Tables
+  copy:
+      dest: /etc/sysctl.d/k8s.conf
+      content: |
+        net.bridge.bridge-nf-call-ip6tables = 1
+        net.bridge.bridge-nf-call-iptables = 1
+  changed_when: false
+
+- name: Restarting sysctl
+  shell: "sudo sysctl --system"
+  changed_when: false
+
+- name: Install the tc cmd
+  package:
+      name: "iproute-tc"
+      state: present
+
+
+- name: Join Master Node
+  shell:  "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+
+
+
+# - name: Copy the file from Local to Slave
+#   copy: src=/home/deepaksaini/tokens.sh dest=/home/ec2-user
+
+# - name: Join master
+#   shell: "bash /home/ec2-user/tokens.sh"
+
+
+# - name: Store tags in File for Retrive After the use.
+#   shell: "{ curl http://169.254.169.254/latest/meta-data/local-hostname ; curl http://169.254.169.254/latest/meta-data/tags/instance/Name; } | paste -d "   " -s   >> NodeInfo"
+#   register: labeld
+#   ignore_errors: yes

@@ -1,0 +1,206 @@
+---
+# tasks file for k8s-Master
+- name: Install Docker Engine
+  package:
+      name: "docker"
+      state: present
+
+
+- name: Start Docker Engine
+  service:
+       name: "docker"
+       state: started
+       enabled: yes
+  changed_when: false
+
+
+- name: Configuring YUM Repo For K8S Services
+  yum_repository:
+      name: kubernetes
+      description: kubernetes repo
+      baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+      enabled: 1
+      gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  register: a
+  changed_when: false
+
+
+- name: Install Kubeadm software..
+  shell:
+       cmd: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+  ignore_errors: yes
+
+- name: Install Iproute-tc software
+  package:
+         name: "iproute-tc"
+         state: present
+
+
+- name: Start kubelet Service
+  service:
+        name: "kubelet"
+        state: started
+        enabled: yes
+
+- name: Download the required container images from kubeadm centralise repository
+  shell:
+       cmd: kubeadm config images pull
+  ignore_errors: yes
+
+- name: change the driver name for control process by docker
+  copy:
+       src: daemon.json
+       dest: /etc/docker/
+
+- name: Docker service restarted
+  service:
+         name: "docker"
+         state: restarted
+
+
+- name: Setting Up IP Tables
+  copy:
+     dest: /etc/sysctl.d/k8s.conf
+     content: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+
+- name: Restarting sysctl
+  shell: "sudo sysctl --system"
+
+
+- name: Clear Ram caches
+  shell: echo 3 > /proc/sys/vm/drop_caches
+
+
+- name: Configure Master or initialize master node
+  shell:
+       cmd: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem --node-name=master"
+
+
+- name: Creating .kube Directory
+  file:
+      path: $HOME/.kube
+      state: directory
+
+- name: Copying Config File of K8S Master to HOME Location
+  command: "cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"
+
+- name: Changing Ownership of K8S Config File For K8S Kubectl Client
+  shell: "chown $(id -u):$(id -g) $HOME/.kube/config"
+
+- name: Flanel to up the cluster
+  command: "kubectl apply  -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+
+- name: Install OpenJDK
+  shell: "sudo amazon-linux-extras install java-openjdk11 -y"
+  changed_when: false
+
+- name: Generating Token
+  shell: "kubeadm token  create  --print-join-command"
+  register: tokens
+  ignore_errors: yes
+
+- name: "Add K8S Token to dummy host"
+  add_host:
+    name:   "K8S_TOKEN_HOLDER"
+    token:  "{{ tokens.stdout }}"
+
+- name: Set the token as a global fact
+  set_fact:
+    global_tokens: "{{ tokens.stdout }}"
+
+- name:
+  debug:
+    msg: "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+
+
+
+
+
+# - name: Credential provide to slave node to join the master
+#   shell: "kubeadm token  create  --print-join-command > /home/ec2-user/tokens.sh"
+#   register: tokens
+#   ignore_errors: yes
+
+  
+# - name: Give Executable Permission
+#   shell: "chmod +x /home/ec2-user/tokens.sh"
+#   register: token
+#   ignore_errors: yes
+# - debug:
+#      var: tokens.stdout
+
+# - name: Fetch the file from the Master to LocalHost
+#   run_once: yes
+#   fetch: src=/home/ec2-user/tokens.sh dest=/home/deepaksaini/ flat=yes
+
+
+
+
+#- name: Labeled The Nodes of Kubernets with Roles
+#  shell: "kubectl label node $(curl http://169.254.169.254/latest/meta-data/local-hostname)  node-role.kubernetes.io/$(curl http://169.254.169.254/latest/meta-data/tags/instance/Name)=$(curl http://169.254.169.254/latest/meta-data/tags/instance/Name)"
+#  register: labeld
+#  ignore_errors: yes
+
+- name: Helm Download
+  shell: "wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz"
+  register: down
+  ignore_errors: yes
+
+- name: Helm Install
+  shell: "tar xvf helm-v3.4.1-linux-amd64.tar.gz"
+  register: install
+  ignore_errors: yes
+
+- name: changedir
+  shell: "mv linux-amd64/helm /usr/local/bin"
+  register: dirchange
+  ignore_errors: yes
+
+- name: Install Git
+  shell: "sudo yum install git -y"
+  register: gitins
+  ignore_errors: yes
+
+- name: Install HTTPD webserver
+  package:
+      name: "httpd"
+      state: present
+
+
+- name: Start httpd webserver
+  service:
+       name: "httpd"
+       state: started
+       enabled: yes
+  changed_when: false
+
+- name: "Copying the Webapp files to the Dest" 
+  copy:
+    dest: "/var/www/html"
+    src: "{{ item }}"
+  with_fileglob:
+    - /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/webapp/*
+
+- name: "Copying the api file" 
+  copy:
+    dest: "/var/www/cgi-bin/"
+    src: "/home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/webapp/info.py"
+
+
+- name: Give the sudo power to apache user 
+  shell: "echo 'apache ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+  register: apache
+  ignore_errors: yes
+
+- name: Make file executable
+  shell: "chmod ugo+rx /var/www/cgi-bin/info.py"
+  register: executable
+  ignore_errors: yes
+
+- name: Save Public IP
+  shell: "curl http://169.254.169.254/latest/meta-data/public-ipv4 > /home/ec2-user/public-ip.txt"
+  register: ip
+  ignore_errors: yes
