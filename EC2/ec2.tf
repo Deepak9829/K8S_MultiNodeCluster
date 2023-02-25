@@ -3,7 +3,7 @@ terraform {
     bucket  = "k8s-state-file"
     key     = "terraform.tfstate"
     region  = "ap-south-1"
-    profile = "deepak_acc"
+    #profile = "deepak_acc"
   }
 }
 
