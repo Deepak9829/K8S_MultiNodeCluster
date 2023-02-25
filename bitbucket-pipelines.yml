@@ -1,33 +1,10 @@
-# Template Terraform to deploy to Cloud Infrastructure
-
-# This template allows you to deploy your infrastructure using Terraform to supported cloud providers.
-# The workflow allows running tests, security scans on feature branches (as well as master).
-# After merging code to master the infrastructure will be deployed to cloud according to the given terraform template.
-
-# Prerequisites: credentials according to used cloud provider.
-# For advanced cases, please, follow terraform docs https://www.terraform.io/docs/index.html.
-
-
 image: hashicorp/terraform
 
 pipelines:
   default:
-  branches:
-    master:
       - step:
             name: Test
             script:
               - terraform init
               - terraform validate
-  branches:
-    master:
-        - step:
-            name: Deploy to Production
-            deployment: Production
-            trigger: manual
-            script:
-              - terraform init
-              - terraform plan
-              - terraform apply -auto-approve
-
-
+  
