@@ -6,6 +6,7 @@ pipelines:
             name: Test
             script:
               - ls -la
+              - chdir EC2
               - terraform init
               - terraform validate
               - terraform plan
