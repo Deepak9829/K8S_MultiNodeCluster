@@ -1,7 +1,9 @@
 - hosts: Master
   roles:
-  - role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Master"
+  - role: "../Ansible-Playbook/Roles/k8s-Master"
+  #- role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Master"
 
 - hosts: Slave
   roles:
-  - role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Slave"
+  - role: "../Ansible-Playbook/Roles/k8s-Slave"
+  #- role: "/home/$USER/K8S_MultiNodeCluster/Ansible-Playbook/Roles/k8s-Slave"
