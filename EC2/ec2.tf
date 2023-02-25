@@ -3,7 +3,7 @@ terraform {
     bucket = "k8s-state-file"
     key    = "terraform.tfstate"
     region = "ap-south-1"
-    #profile = "deepak_acc"
+    profile = "deepak_acc"
   }
 }
 
@@ -130,7 +130,7 @@ resource "local_file" "ipaddr" {
 resource "null_resource" "nulllocal3" {
   depends_on = [local_file.ipaddr]
   provisioner "local-exec" {
-    command = "ansible-playbook ../Ansible-Playbook/cluster.yml -i /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/k8s.ini"
+    command = "ansible-playbook /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/cluster.yml -i /home/deepaksaini/K8S_MultiNodeCluster/Ansible-Playbook/k8s.ini"
   }
 
 }
