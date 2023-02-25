@@ -12,4 +12,5 @@ pipelines:
               - terraform init
               - terraform validate
               - terraform plan
+              - terraform fmt
   
