@@ -1,37 +1,37 @@
 variable "vpc_cidr" {
-    default = "10.0.0.0/16"
-  
+  default = "10.0.0.0/16"
+
 }
 
 variable "subnet_cidr" {
-  
-    default = "10.0.1.0/24"
-  
+
+  default = "10.0.1.0/24"
+
 }
 
 variable "azs" {
-    default = "ap-south-1a"
-  
+  default = "ap-south-1a"
+
 }
 
 variable "aws_region" {
-    default = "ap-south-1"
+  default = "ap-south-1"
 }
 
 variable "ami_image" {
-    default = "ami-079b5e5b3971bd10d"
-  
+  default = "ami-079b5e5b3971bd10d"
+
 }
 
 
 variable "slave_instance_type" {
-    default = "t2.micro"
-  
+  default = "t2.micro"
+
 }
 
 variable "master_instance_type" {
-    default = "t2.medium"
-  
+  default = "t2.medium"
+
 }
 
 
