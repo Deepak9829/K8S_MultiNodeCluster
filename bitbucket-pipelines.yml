@@ -5,6 +5,7 @@ pipelines:
       - step:
             name: Test
             script:
+              - ll
               - terraform init
               - terraform validate
   
